@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cookie Clicker</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #f8e8c8;
+            margin: 0;
+            padding: 20px;
+            color: #5a3921;
+            user-select: none;
+        }
+        #header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #cookie-container {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        #bigCookie {
+            width: 200px;
+            height: 200px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        #bigCookie:active {
+            transform: scale(0.95);
+        }
+        #counters {
+            font-size: 24px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        #cps {
+            font-size: 16px;
+            color: #7a5c3c;
+        }
+        #store {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .product {
+            background-color: #f0d8b0;
+            border: 2px solid #d0a060;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: left;
+        }
+        .product button {
+            background-color: #d0a060;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .product button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #golden-cookie {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: gold;
+            border-radius: 50%;
+            display: none;
+            cursor: pointer;
+            box-shadow: 0 0 10px gold;
+            z-index: 100;
+        }
+        #upgrades {
+            margin: 20px 0;
+        }
+        .upgrade {
+            background-color: #e8d0a0;
+            border: 1px solid #c09050;
+            padding: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        #prestige {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #e0f0ff;
+            border: 2px solid #a0c0ff;
+        }
+        #achievements {
+            margin-top: 20px;
+        }
+        .achievement {
+            opacity: 0.5;
+            margin: 5px 0;
+        }
+        .achievement.unlocked {
+            opacity: 1;
+            font-weight: bold;
+            color: #3a7020;
+        }
+        .floating-number {
+            position: absolute;
+            color: #5a3921;
+            font-weight: bold;
+            pointer-events: none;
+            animation: float-up 1s forwards;
+        }
+        #dev-tools {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #333;
+            color: #0f0;
+            border: 2px solid #0f0;
+        }
+        #name-input {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #name-input input {
+            padding: 10px;
+            font-size: 20px;
+            width: 300px;
+        }
+        @keyframes float-up {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>Cookie Clicker</h1>
+    </div>
+
+    <div id="counters">
+        <div id="cookies">0 cookies</div>
+        <div id="cps">per second: 0</div>
+    </div>
+
+    <div id="cookie-container">
+        <img id="bigCookie" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjI0MCIgZmlsbD0iI2Q3OTUxZSIgc3Ryb2tlPSIjOGI1YTJiIiB3aWR0aD0iMjAiLz48Y2lyY2xlIGN4PSIxNjAiIGN5PSIxNjAiIHI9IjMwIiBmaWxsPSIjZDc5NTFlIiBzdHJva2U9IiM4YjVhMmIiIHdpZHRoPSIxMCIvPjxjaXJjbGUgY3g9IjM1MCIgY3k9IjE2MCIgcj0iMzAiIGZpbGw9IiNkNzk1MWUiIHN0cm9rZT0iIzhiNWEyYiIgd2lkdGg9IjEwIi8+PGNpcmNsZSBjeD0iMTYwIiBjeT0iMzUwIiByPSIzMCIgZmlsbD0iI2Q3OTUxZSIgc3Ryb2tlPSIjOGI1YTJiIiB3aWR0aD0iMTAiLz48Y2lyY2xlIGN4PSIzNTAiIGN5PSIzNTAiIHI9IjMwIiBmaWxsPSIjZDc5NTFlIiBzdHJva2U9IiM4YjVhMmIiIHdpZHRoPSIxMCIvPjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMTUwIiBmaWxsPSIjZWJjNDk2IiBzdHJva2U9IiNkNzk1MWUiIHdpZHRoPSIxMCIvPjwvc3ZnPg==" alt="Big Cookie">
+    </div>
+
+    <div id="golden-cookie"></div>
+
+    <div id="store">
+        <!-- Products will be added by JavaScript -->
+    </div>
+
+    <div id="upgrades">
+        <h3>Upgrades</h3>
+        <div id="upgrades-list"></div>
+    </div>
+
+    <div id="achievements">
+        <h3>Achievements</h3>
+        <div id="achievements-list"></div>
+    </div>
+
+    <div id="prestige">
+        <h3>Prestige</h3>
+        <p>Heavenly chips: <span id="heavenly-chips">0</span></p>
+        <p>Prestige cookies available: <span id="prestige-cookies">0</span></p>
+        <button id="prestige-button">Ascend</button>
+    </div>
+
+    <div id="dev-tools">
+        <h3>Developer Tools</h3>
+        <button onclick="addCookies(1000)">+1,000 Cookies</button>
+        <button onclick="addCookies(1000000)">+1 Million Cookies</button>
+        <button onclick="unlockAll()">Unlock All</button>
+        <button onclick="resetGame()">Hard Reset</button>
+    </div>
+
+    <div>
+        <button id="save-button">Save Game</button>
+        <button id="load-button">Load Game</button>
+    </div>
+
+    <div id="name-input">
+        <input type="text" id="name-field" placeholder="Enter your name" maxlength="20">
+    </div>
+
+    <script>
+        // Game state
+        const game = {
+            cookies: 0,
+            totalCookies: 0,
+            cookiesPerSecond: 0,
+            clickPower: 1,
+            playerName: "Player",
+            devMode: false,
+            goldenCookies: {
+                active: false,
+                x: 0,
+                y: 0,
+                timeout: null
+            },
+            heavenlyChips: 0,
+            products: {
+                cursor: {
+                    name: "Cursor",
+                    basePrice: 15,
+                    price: 15,
+                    owned: 0,
+                    cps: 0.1,
+                    unlocked: true
+                },
+                grandma: {
+                    name: "Grandma",
+                    basePrice: 100,
+                    price: 100,
+                    owned: 0,
+                    cps: 1,
+                    unlocked: true
+                },
+                farm: {
+                    name: "Farm",
+                    basePrice: 500,
+                    price: 500,
+                    owned: 0,
+                    cps: 4,
+                    unlocked: true
+                },
+                mine: {
+                    name: "Mine",
+                    basePrice: 2000,
+                    price: 2000,
+                    owned: 0,
+                    cps: 10,
+                    unlocked: false
+                },
+                factory: {
+                    name: "Factory",
+                    basePrice: 7000,
+                    price: 7000,
+                    owned: 0,
+                    cps: 40,
+                    unlocked: false
+                },
+                bank: {
+                    name: "Bank",
+                    basePrice: 50000,
+                    price: 50000,
+                    owned: 0,
+                    cps: 100,
+                    unlocked: false
+                },
+                temple: {
+                    name: "Temple",
+                    basePrice: 200000,
+                    price: 200000,
+                    owned: 0,
+                    cps: 400,
+                    unlocked: false
+                }
+            },
+            upgrades: {
+                // Cursor upgrades
+                "Reinforced index finger": {
+                    name: "Reinforced index finger",
+                    description: "Cursors are twice as efficient.",
+                    price: 100,
+                    bought: false,
+                    effect: function() { game.clickPower *= 2; },
+                    requirement: function() { return game.products.cursor.owned >= 1; }
+                },
+                // Grandma upgrades
+                "Forwards from grandma": {
+                    name: "Forwards from grandma",
+                    description: "Grandmas are twice as efficient.",
+                    price: 500,
+                    bought: false,
+                    effect: function() { 
+                        for (let i = 0; i < game.products.grandma.owned; i++) {
+                            game.cookiesPerSecond += 1;
+                        }
+                    },
+                    requirement: function() { return game.products.grandma.owned >= 1; }
+                }
+            },
+            achievements: {
+                "Click": {
+                    name: "Click",
+                    description: "Make your first cookie",
+                    unlocked: false,
+                    check: function() { return game.totalCookies >= 1; }
+                },
+                "Making some dough": {
+                    name: "Making some dough",
+                    description: "Bake 100 cookies",
+                    unlocked: false,
+                    check: function() { return game.totalCookies >= 100; }
+                },
+                "So baked right now": {
+                    name: "So baked right now",
+                    description: "Bake 1,000 cookies",
+                    unlocked: false,
+                    check: function() { return game.totalCookies >= 1000; }
+                },
+                "First legacy": {
+                    name: "First legacy",
+                    description: "Ascend with 1 heavenly chip",
+                    unlocked: false,
+                    check: function() { return game.heavenlyChips >= 1; }
+                }
+            },
+            version: "1.0"
+        };
+
+        // DOM elements
+        const bigCookie = document.getElementById("bigCookie");
+        const cookiesDisplay = document.getElementById("cookies");
+        const cpsDisplay = document.getElementById("cps");
+        const storeDiv = document.getElementById("store");
+        const upgradesList = document.getElementById("upgrades-list");
+        const achievementsList = document.getElementById("achievements-list");
+        const heavenlyChipsDisplay = document.getElementById("heavenly-chips");
+        const prestigeCookiesDisplay = document.getElementById("prestige-cookies");
+        const prestigeButton = document.getElementById("prestige-button");
+        const saveButton = document.getElementById("save-button");
+        const loadButton = document.getElementById("load-button");
+        const goldenCookie = document.getElementById("golden-cookie");
+        const devTools = document.getElementById("dev-tools");
+        const nameInput = document.getElementById("name-input");
+        const nameField = document.getElementById("name-field");
+
+        // Initialize the game
+        function init() {
+            renderProducts();
+            renderUpgrades();
+            renderAchievements();
+            updatePrestige();
+            
+            // Game loop
+            setInterval(gameLoop, 100);
+            
+            // Golden cookie spawner
+            setInterval(trySpawnGoldenCookie, 30000);
+            
+            // Event listeners
+            bigCookie.addEventListener("click", clickCookie);
+            prestigeButton.addEventListener("click", ascend);
+            saveButton.addEventListener("click", saveGame);
+            loadButton.addEventListener("click", loadGame);
+            goldenCookie.addEventListener("click", clickGoldenCookie);
+            cookiesDisplay.addEventListener("click", showNameInput);
+            nameField.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") {
+                    setPlayerName();
+                }
+            });
+            
+            // Try to load saved game
+            loadGame();
+        }
+
+        // Main game loop
+        function gameLoop() {
+            // Add cookies from production
+            game.cookies += game.cookiesPerSecond / 10;
+            game.totalCookies += game.cookiesPerSecond / 10;
+            
+            // Check for unlocked achievements
+            checkAchievements();
+            
+            // Unlock new products when requirements are met
+            unlockProducts();
+            
+            // Update displays
+            updateDisplays();
+        }
+
+        // Click the big cookie
+        function clickCookie(event) {
+            const cookiesEarned = game.clickPower;
+            game.cookies += cookiesEarned;
+            game.totalCookies += cookiesEarned;
+            
+            // Create floating number
+            createFloatingNumber(cookiesEarned, event.clientX, event.clientY);
+            
+            updateDisplays();
+        }
+
+        // Create floating number animation
+        function createFloatingNumber(number, x, y) {
+            const floatingNumber = document.createElement("div");
+            floatingNumber.className = "floating-number";
+            floatingNumber.textContent = "+" + number;
+            floatingNumber.style.left = (x - 20) + "px";
+            floatingNumber.style.top = (y - 20) + "px";
+            document.body.appendChild(floatingNumber);
+            
+            // Remove after animation
+            setTimeout(() => {
+                floatingNumber.remove();
+            }, 1000);
+        }
+
+        // Render products in store
+        function renderProducts() {
+            storeDiv.innerHTML = "";
+            
+            for (const productId in game.products) {
+                const product = game.products[productId];
+                if (!product.unlocked) continue;
+                
+                const productDiv = document.createElement("div");
+                productDiv.className = "product";
+                productDiv.innerHTML = `
+                    <h3>${product.name}</h3>
+                    <p>Owned: ${product.owned}</p>
+                    <p>Produces: ${product.cps} per second</p>
+                    <p>Price: ${Math.floor(product.price)}</p>
+                    <button onclick="buyProduct('${productId}')">Buy</button>
+                `;
+                storeDiv.appendChild(productDiv);
+            }
+        }
+
+        // Buy a product
+        function buyProduct(productId) {
+            const product = game.products[productId];
+            
+            if (game.cookies >= product.price) {
+                game.cookies -= product.price;
+                product.owned++;
+                product.price = Math.floor(product.basePrice * Math.pow(1.15, product.owned));
+                
+                // Update CPS
+                game.cookiesPerSecond += product.cps;
+                
+                // Re-render store
+                renderProducts();
+                renderUpgrades();
+                updateDisplays();
+            }
+        }
+
+        // Unlock products when requirements are met
+        function unlockProducts() {
+            if (game.products.mine.unlocked === false && game.totalCookies >= 1000) {
+                game.products.mine.unlocked = true;
+                renderProducts();
+            }
+            if (game.products.factory.unlocked === false && game.totalCookies >= 5000) {
+                game.products.factory.unlocked = true;
+                renderProducts();
+            }
+            if (game.products.bank.unlocked === false && game.totalCookies >= 20000) {
+                game.products.bank.unlocked = true;
+                renderProducts();
+            }
+            if (game.products.temple.unlocked === false && game.totalCookies >= 100000) {
+                game.products.temple.unlocked = true;
+                renderProducts();
+            }
+        }
+
+        // Render available upgrades
+        function renderUpgrades() {
+            upgradesList.innerHTML = "";
+            
+            for (const upgradeId in game.upgrades) {
+                const upgrade = game.upgrades[upgradeId];
+                if (upgrade.bought || !upgrade.requirement()) continue;
+                
+                const upgradeDiv = document.createElement("div");
+                upgradeDiv.className = "upgrade";
+                upgradeDiv.innerHTML = `
+                    <h4>${upgrade.name}</h4>
+                    <p>${upgrade.description}</p>
+                    <p>Price: ${upgrade.price}</p>
+                    <button onclick="buyUpgrade('${upgradeId}')">Buy</button>
+                `;
+                upgradesList.appendChild(upgradeDiv);
+            }
+        }
+
+        // Buy an upgrade
+        function buyUpgrade(upgradeId) {
+            const upgrade = game.upgrades[upgradeId];
+            
+            if (game.cookies >= upgrade.price && !upgrade.bought) {
+                game.cookies -= upgrade.price;
+                upgrade.bought = true;
+                upgrade.effect();
+                renderUpgrades();
+                updateDisplays();
+            }
+        }
+
+        // Check and unlock achievements
+        function checkAchievements() {
+            for (const achievementId in game.achievements) {
+                const achievement = game.achievements[achievementId];
+                if (!achievement.unlocked && achievement.check()) {
+                    achievement.unlocked = true;
+                    renderAchievements();
+                }
+            }
+        }
+
+        // Render achievements
+        function renderAchievements() {
+            achievementsList.innerHTML = "";
+            
+            for (const achievementId in game.achievements) {
+                const achievement = game.achievements[achievementId];
+                const achievementDiv = document.createElement("div");
+                achievementDiv.className = `achievement ${achievement.unlocked ? "unlocked" : ""}`;
+                achievementDiv.innerHTML = `
+                    <h4>${achievement.name}</h4>
+                    <p>${achievement.description}</p>
+                `;
+                achievementsList.appendChild(achievementDiv);
+            }
+        }
+
+        // Try to spawn golden cookie
+        function trySpawnGoldenCookie() {
+            if (game.goldenCookies.active) return;
+            
+            // Random position
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 100);
+            
+            game.goldenCookies.x = x;
+            game.goldenCookies.y = y;
+            game.goldenCookies.active = true;
+            
+            goldenCookie.style.left = x + "px";
+            goldenCookie.style.top = y + "px";
+            goldenCookie.style.display = "block";
+            
+            // Cookie disappears after 10 seconds if not clicked
+            game.goldenCookies.timeout = setTimeout(() => {
+                if (game.goldenCookies.active) {
+                    goldenCookie.style.display = "none";
+                    game.goldenCookies.active = false;
+                }
+            }, 10000);
+        }
+
+        // Click golden cookie
+        function clickGoldenCookie() {
+            if (!game.goldenCookies.active) return;
+            
+            clearTimeout(game.goldenCookies.timeout);
+            goldenCookie.style.display = "none";
+            game.goldenCookies.active = false;
+            
+            // Random effect
+            const effects = [
+                {
+                    name: "Lucky!",
+                    effect: function() {
+                        const bonus = Math.floor(game.cookiesPerSecond * 120 * 7);
+                        game.cookies += bonus;
+                        return `+${bonus} cookies!`;
+                    }
+                },
+                {
+                    name: "Frenzy!",
+                    effect: function() {
+                        // Would implement timed multiplier in full version
+                        return "Cookies x7 for 30 seconds!";
+                    }
+                }
+            ];
+            
+            const effect = effects[Math.floor(Math.random() * effects.length)];
+            const message = effect.effect();
+            alert(`${effect.name}\n${message}`);
+            
+            updateDisplays();
+        }
+
+        // Calculate prestige cookies
+        function calculatePrestigeCookies() {
+            return Math.floor(Math.pow(game.totalCookies / 1000000, 0.5) - game.heavenlyChips);
+        }
+
+        // Update prestige display
+        function updatePrestige() {
+            const prestigeCookies = calculatePrestigeCookies();
+            prestigeCookiesDisplay.textContent = prestigeCookies;
+            heavenlyChipsDisplay.textContent = game.heavenlyChips;
+            
+            // Disable button if not enough for prestige
+            prestigeButton.disabled = prestigeCookies <= 0;
+        }
+
+        // Ascend (prestige)
+        function ascend() {
+            const prestigeCookies = calculatePrestigeCookies();
+            if (prestigeCookies <= 0) return;
+            
+            if (confirm(`Ascend and gain ${prestigeCookies} heavenly chips?`)) {
+                game.heavenlyChips += prestigeCookies;
+                resetGame();
+            }
+        }
+
+        // Reset game after ascending
+        function resetGame() {
+            game.cookies = 0;
+            game.cookiesPerSecond = 0;
+            game.clickPower = 1;
+            
+            // Reset products
+            for (const productId in game.products) {
+                const product = game.products[productId];
+                product.owned = 0;
+                product.price = product.basePrice;
+                product.unlocked = productId === "cursor" || productId === "grandma";
+            }
+            
+            // Reset upgrades
+            for (const upgradeId in game.upgrades) {
+                game.upgrades[upgradeId].bought = false;
+            }
+            
+            // Keep achievements
+            // Keep totalCookies for calculating chips next time
+            
+            renderProducts();
+            renderUpgrades();
+            updatePrestige();
+            updateDisplays();
+        }
+
+        // Update all displays
+        function updateDisplays() {
+            cookiesDisplay.textContent = `${Math.floor(game.cookies)} cookies (${game.playerName})`;
+            cpsDisplay.textContent = `per second: ${game.cookiesPerSecond.toFixed(1)}`;
+            updatePrestige();
+        }
+
+        // Save game
+        function saveGame() {
+            localStorage.setItem("cookieClickerSave", JSON.stringify(game));
+            alert("Game saved!");
+        }
+
+        // Load game
+        function loadGame() {
+            const save = localStorage.getItem("cookieClickerSave");
+            if (save) {
+                const savedGame = JSON.parse(save);
+                
+                // Preserve version
+                savedGame.version = game.version;
+                
+                Object.assign(game, savedGame);
+                
+                // Recalculate cookies per second in case upgrades changed
+                game.cookiesPerSecond = 0;
+                for (const productId in game.products) {
+                    const product = game.products[productId];
+                    game.cookiesPerSecond += product.owned * product.cps;
+                }
+                
+                renderProducts();
+                renderUpgrades();
+                renderAchievements();
+                updateDisplays();
+                
+                // Check for dev mode
+                if (game.playerName.toLowerCase() === "opensesame") {
+                    toggleDevTools();
+                }
+            }
+        }
+
+        // Show name input dialog
+        function showNameInput() {
+            nameInput.style.display = "flex";
+            nameField.focus();
+        }
+
+        // Set player name
+        function setPlayerName() {
+            const newName = nameField.value.trim();
+            if (newName) {
+                game.playerName = newName;
+                updateDisplays();
+                
+                // Check for secret code
+                if (newName.toLowerCase() === "opensesame") {
+                    toggleDevTools();
+                }
+            }
+            nameInput.style.display = "none";
+            nameField.value = "";
+        }
+
+        // Toggle developer tools
+        function toggleDevTools() {
+            game.devMode = !game.devMode;
+            devTools.style.display = game.devMode ? "block" : "none";
+        }
+
+        // Developer tool: Add cookies
+        function addCookies(amount) {
+            game.cookies += amount;
+            game.totalCookies += amount;
+            updateDisplays();
+        }
+
+        // Developer tool: Unlock all
+        function unlockAll() {
+            // Unlock all products
+            for (const productId in game.products) {
+                game.products[productId].unlocked = true;
+            }
+            
+            // Unlock all upgrades
+            for (const upgradeId in game.upgrades) {
+                if (game.upgrades[upgradeId].requirement()) {
+                    game.upgrades[upgradeId].bought = true;
+                    game.upgrades[upgradeId].effect();
+                }
+            }
+            
+            // Unlock all achievements
+            for (const achievementId in game.achievements) {
+                game.achievements[achievementId].unlocked = true;
+            }
+            
+            renderProducts();
+            renderUpgrades();
+            renderAchievements();
+            updateDisplays();
+        }
+
+        // Start the game
+        init();
+
+        // Make functions available globally for HTML buttons
+        window.buyProduct = buyProduct;
+        window.buyUpgrade = buyUpgrade;
+        window.addCookies = addCookies;
+        window.unlockAll = unlockAll;
+        window.resetGame = resetGame;
+    </script>
+</body>
+</html>
